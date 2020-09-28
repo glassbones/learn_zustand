@@ -17,24 +17,52 @@ const FilterInput =()=> {
   return ( <input value={filter} onChange={(e) => setFilter( e.target.value )} /> )
 }
 
-export default function App() {
-  const filter = useStore((state) => state.filter)
+const PokemonTable =()=> {
   const pokemon = useStore((state) => state.pokemon)
-  const setPokemon = useStore((state) => state.setPokemon)
+  const filter = useStore((state) => state.filter)
   
+  return (
+    <table width="100%">
+      <tbody>
+        {pokemon.filter(({ name: { english } }) =>
+          english.toLowerCase().includes(filter.toLowerCase()))
+          .map(({ id, name: { english }, type }) => (
+            <tr key={id}>
+              <td>{english}</td>
+              <td>{type.join(", ")}</td>
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  )
+}
+
+// you can update the state outside of the default function like this
+fetch(POKEMON_URL)
+.then(resp => resp.json())
+.then(pokemon => useStore.setState((state) => ({ ...state, pokemon })))
+
+
+export default function App() {
+  // or you can update it inside like this
+  /*  
+  const filter = useStore((state) => state.filter)
+  const setPokemon = useStore((state) => state.setPokemon)
 
   React.useEffect(() => {
     fetch(POKEMON_URL)
       .then(resp => resp.json())
       .then(pokemon => setPokemon(pokemon))
   })
+  */
 
   return (
     <div className="App">
       <div>
         <FilterInput />
       </div>
-      {JSON.stringify(pokemon)}
+    <h1>List of Pokemon</h1>
+    <PokemonTable/>
     </div>
   );
 }
